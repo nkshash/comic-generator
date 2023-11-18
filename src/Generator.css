@@ -1,0 +1,22 @@
+.custom-text-input {
+    background-color: transparent;
+    color: #ffffff; /* Lighter text color */
+    border: 3px solid white;
+    border-radius: 5px; /* Thicker border */
+    transition: border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+  
+  .custom-text-input.active {
+    color: white;
+  }
+  
+  .custom-text-input:focus {
+   caret-color: white;
+  
+    background-color: rgb(43, 43, 43);
+    border-color: white;
+    box-shadow: 0 0 0 2px white;
+  }
+  .custom-text-input::placeholder {
+    color: rgb(180, 175, 175);
+  }

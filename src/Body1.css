@@ -1,0 +1,6 @@
+@media (min-width: 768px) {
+    /* Adjust the left position for devices above 768 pixels width */
+    .custom-steps-box {
+      left: 10%;
+    }
+  }
