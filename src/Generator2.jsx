@@ -10,6 +10,26 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faShare } from '@fortawesome/free-solid-svg-icons';
 import html2canvas from 'html2canvas';
+
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import 'sweetalert2/dist/sweetalert2.min.css'; // Import SweetAlert2 styles
+
+const MySwal = withReactContent(Swal);
+
+// Apply custom dark theme styles
+document.documentElement.style.setProperty('--sweetalert2-bg', '#2d2d2d');
+document.documentElement.style.setProperty('--sweetalert2-border-color', '#333');
+document.documentElement.style.setProperty('--sweetalert2-box-shadow', '0 0 10px rgba(0, 0, 0, 0.5)');
+document.documentElement.style.setProperty('--sweetalert2-text-color', '#fff');
+document.documentElement.style.setProperty('--sweetalert2-button-bg', '#444');
+document.documentElement.style.setProperty('--sweetalert2-button-text-color', '#fff');
+document.documentElement.style.setProperty('--sweetalert2-button-hover-bg', '#555');
+// Apply a dark theme
+// Swal.setDefaults({
+//   theme: 'dark',
+//   // Additional customization options can be added here
+// });
 import './Generator.css';
 const Generator2 = () => {
   const [panelTexts, setPanelTexts] = useState(Array(10).fill(''));
@@ -19,27 +39,45 @@ const Generator2 = () => {
 
   useEffect(() => {
     const handleGenerateImages = async () => {
+      const isAllTextFilled = panelTexts.every((text) => text.trim() !== '');
+  
+      if (!isAllTextFilled) {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Please fill in all textboxes before generating images.',
+        });
+        setIsLoading(false);
+        return;
+      }
+  
       setIsLoading(true);
+  
       try {
         const imagePromises = panelTexts.map(async (text) => {
           const response = await query({ "inputs": text });
           const blob = await response.blob();
           return URL.createObjectURL(blob);
         });
-
+  
         const images = await Promise.all(imagePromises);
         setPanelImages(images);
       } catch (error) {
-        console.error("Error generating images:", error);
+        MySwal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error generating images: ' + error.message,
+        });
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     if (isLoading) {
       handleGenerateImages();
     }
   }, [isLoading, panelTexts]);
+
 
   const query = async (data) => {
     try {
@@ -78,7 +116,11 @@ const Generator2 = () => {
       a.download = 'canvas_image.png';
       a.click();
     } catch (error) {
-      console.error('Error generating and downloading image:', error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error generating and downloading image: ' + error.message,
+      });
     }
   }
   const handleTextChange = (index, newText) => {
@@ -112,14 +154,26 @@ const Generator2 = () => {
         console.log('Cloudinary URL:', cloudinaryUrl);
         await navigator.clipboard.writeText(cloudinaryUrl);
         console.log('URL copied to clipboard');
-        alert('URL copied to clipboard!');
+        MySwal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'URL copied to clipboard!',
+        });
       } else {
-        console.error('Cloudinary failed to upload image:', response.statusText);
+        MySwal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Cloudinary failed to upload image: ' + response.statusText,
+        });
       }
     } catch (error) {
-      console.error('Error generating and uploading image:', error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error generating and uploading image: ' + error.message,
+      });
     } finally {
-      setIsCopying(false); 
+      setIsCopying(false);
     }
   };
   
